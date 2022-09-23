@@ -1,0 +1,443 @@
+$intents = {
+	blue: #031633 #052c65 #084298 #0a58ca #0d6efd #3d8bfd #6ea8fe #9ec5fe #cfe2ff
+	green: #051b11 #0a3622 #0f5132 #146c43 #198754 #479f76 #75b798 #a3cfbb #d1e7dd
+	yellow: #332701 #664d03 #997404 #cc9a06 #ffc107 #ffcd39 #ffda6a #ffe69c #fff3cd
+	red: #2c0b0e #58151c #842029 #b02a37 #dc3545 #e35d6a #ea868f #f1aeb5 #f8d7da
+	orange: #331904 #653208 #984c0c #ca6510 #fd7e14 #fd9843 #feb272 #fecba1 #ffe5d0
+	cyan: #032830 #055160 #087990 #0aa2c0 #0dcaf0 #3dd5f3 #6edff6 #9eeaf9 #cff4fc
+	purple: #160d27 #2c1a4d #432874 #59359a #6f42c1 #8c68cd #a98eda #c5b3e6 #e2d9f3
+	pink: #2b0a1a #561435 #801f4f #ab296a #d63384 #de5c9d #e685b5 #efadce #f7d6e6
+}
+$grays = #212529 #343a40 #495057 #6c757d #adb5bd #ced4da #dee2e6 #e9ecef #f8f9fa
+$colors = merge($intents, {gray: $grays})
+$black = #000
+$white = #fff
+for c, vals in $colors
+	for v, i in vals
+		define("$" + c + i, v)
+
+$sans = unquote("'SF Pro Text','Tahoma',sans-serif")
+$serif = unquote("'Sitka Text',serif")
+$mono = unquote("'SF Pro Mono','Input Mono Narrow',monospace")
+
+$easeInCubic = cubic-bezier(.32,0,.67,0)
+$easeOutCubic = cubic-bezier(.33,1,.68,1)
+
+$shadowSm = 0 4px 6px -1px #0000001a,0 2px 4px -2px #0000001a
+$shadow = 0 20px 25px -5px #0000001a,0 8px 10px -6px #0000001a
+
+text-security()
+	-webkit-text-security arguments
+	text-security arguments
+
+*, :before, :after
+	box-sizing border-box
+	vertical-align middle
+html
+	height 100%
+body
+	height 100%
+	margin 0
+	font-family $sans
+	font-size 15px
+	line-height 1.5
+	overflow hidden
+	user-select none
+:focus
+	outline 0
+
+#m
+	.row
+		display flex
+		&.reverse
+			flex-direction row-reverse
+		> .col
+			min-width 0
+		> .col-0
+			min-width 0
+	.column
+		display flex
+		flex-direction column
+		&.reverse
+			flex-direction column-reverse
+		> .col
+			min-height 0
+		> .col-0
+			min-height 0
+	.wrap
+		flex-wrap wrap
+	.col
+		flex 1
+	.col-0
+		flex initial
+	for i in 1..12
+		w = floor(i / 12 * 100%, 5)
+		.row > .col-{i}
+			width w
+			min-width 0
+		.column > .col-{i}
+			height w
+			min-height 0
+
+	.start, .column.top
+		justify-content flex-start
+	.center, .column.middle
+		justify-content center
+	.end, .column.bottom
+		justify-content flex-end
+	.between
+		justify-content space-between
+	.around
+		justify-content space-around
+	.evenly
+		justify-content space-evenly
+	.top, .column.start
+		align-items flex-start
+	.middle, .column.center
+		align-items center
+	.bottom, .column.end
+		align-items flex-end
+	.stretch
+		align-items stretch
+
+	for z, i in 0 4px 8px 16px 24px 48px
+		.gap-{i}
+			gap z
+
+	for p in ("p" padding) ("m" margin)
+		for s in ("" ("")) ("x" (-left -right)) ("y" (-top -bottom)) ("l" (-left)) ("r" (-right)) ("t" (-top)) ("b" (-bottom))
+			for z, i in 0 4px 8px 16px 24px 48px
+				.{p[0]}{s[0]}-{i}
+					for d in s[1]
+						{p[1]}{d} z
+				if p[0] is "m" and i
+					.-m{s[0]}-{i}
+						for d in s[1]
+							margin{d} -(z)
+
+	for p in ("w" width) ("h" height) ("max-w" max-width) ("min-w" min-width) ("max-h" max-height) ("min-h" min-height)
+		for z in 0 25 50 75 100
+			.{p[0]}-{z}
+				{p[1]} (z)%
+
+	for p in ("l" left) ("t" top) ("r" right) ("b" bottom)
+		for z in 0 25 50 75 100
+			.{p[0]}-{z}
+				{p[1]} (z)%
+		for z in 25 50 75 100
+			.-{p[0]}-{z}
+				{p[1]} -(z)%
+
+	for v in absolute relative fixed sticky static
+		.{v}
+			position v
+
+	for v in block inline-block inline flex inline-flex grid inline-grid table inline-table
+		.{v}
+			display v
+
+	for v in left right
+		.float-{v}
+			float v
+
+	for c, vals in $colors
+		for v, i in vals
+			.bg-{c}-{i + 1}
+				background-color v
+			.text-{c}-{i + 1}
+				color v
+	.bg-black
+		background-color $black
+	.bg-white
+		background-color $white
+	.text-black
+		color $black
+	.text-white
+		color $white
+
+	.text-sans
+		font-family $sans
+	.text-serif
+		font-family $serif
+	.text-mono
+		font-family $mono
+	.text-normal
+		font-weight normal
+	.text-bold
+		font-weight bold
+	.text-italic
+		font-style italic
+	.text-sm, small
+		font-size 11px
+
+	for v in left center right justify
+		.text-{v}
+			text-align v
+
+	for v in nowrap pre pre-line pre-wrap
+		.text-{v}
+			white-space v
+
+	.scroll
+		overflow auto
+	.scroll-x
+		overflow-x auto
+		overflow-y hidden
+	.scroll-y
+		overflow-x hidden
+		overflow-y auto
+	.noscroll
+		overflow hidden
+
+	.ratio
+		aspect-ratio 1
+
+	.shadow-sm
+		box-shadow $shadowSm
+	.shadow
+		box-shadow $shadow
+
+	for v in 0 10 20 30 40 50 auto
+		.z-{v}
+			z-index v
+
+.disabled
+	opacity .6
+	pointer-events none
+
+.Icon
+	width 18px
+	height 16px
+	font-size 16px
+	display inline-flex
+	justify-content center
+	align-items center
+
+.Button
+	height 30px
+	padding 0 8px
+	border solid 1px $gray5
+	border-radius 4px
+	display inline-flex
+	justify-content center
+	align-items center
+	gap 8px
+	font inherit
+	background $gray7
+	&:hover, &.active
+		border-color $gray4
+		background $gray6
+		z-index 1
+		&.Button--basic
+			background rgba($gray3, .2)
+for c, vals in $intents
+	.Button--{c}
+		border-color vals[2]
+		background vals[4]
+		color #fff
+		&:hover, &.active
+			border-color vals[1]
+			background vals[3]
+			&.Button--basic
+				background rgba(vals[4], .2)
+		&.Button--basic
+			color vals[4]
+.Button--basic
+	border 0
+	background #0000
+	color $gray3
+.Button--small
+	height 24px
+.Button--fill
+	width 100%
+	display flex
+for v in left center right
+	.Button--{v}
+		text-align v
+.Button__text
+	flex 1
+
+.TextInput
+	height 30px
+	border solid 1px $gray5
+	border-radius 4px
+	display flex
+	align-items center
+	background #fff
+	overflow hidden
+	transition-property border-color,box-shadow,z-index
+	transition-duration .15s
+	transition-timing-function $easeOutCubic
+	&:focus-within
+		border-color #0000
+		box-shadow 0 0 0 1px $blue4,0 0 0 4px rgba($blue6, .7)
+		z-index 3
+	> .Icon
+		&:first-child
+			margin-left 8px
+		&:last-child
+			margin-right 8px
+.TextInput__input
+	height 100%
+	padding 0 8px
+	border 0
+	flex 1
+	font inherit
+	background #0000
+
+.PasswordInput--isHidePassword
+	.TextInput__input
+		font-family sans-serif
+		text-security square
+
+.Checkbox
+.Radio
+	height 30px
+	display inline-flex
+	align-items center
+	gap 8px
+.Checkbox__input
+.Radio__input
+	appearance none
+	width 20px
+	height 20px
+	margin 0
+	border solid 1px $gray5
+	background #fff
+	&:hover, &.active
+		border-color $gray4
+		background $gray6
+		&:checked
+			border-color $blue1
+			background $blue3
+	&:checked
+		border-color $blue2
+		display flex
+		justify-content center
+		align-items center
+		background $blue4
+		color #fff
+.Checkbox__input
+	border-radius 4px
+	&:checked:after
+		content "\f00c"
+		font bold 16px "Font Awesome 6 Pro"
+.Radio__input
+	border-radius 20px
+	&:checked:after
+		content ""
+		width 8px
+		height 8px
+		background #fff
+		border-radius 20px
+
+.Select
+	position relative
+.Select__input
+	display none
+.Select__popper
+	width 100%
+	padding 8px 0
+	border solid 1px $gray5
+	border-radius 4px
+	background #fff
+	box-shadow $shadow
+	z-index 1000
+.Select__header
+	height 30px
+	padding 0 8px
+	display flex
+	align-items center
+	font-weight bold
+.Select__divider
+	margin 8px 0
+	border-top solid 1px $gray5
+.Select__item
+	height 30px
+	padding 0 8px
+	display flex
+	align-items center
+	gap 8px
+	&:hover
+		background $gray6
+	&.active
+		background $blue4
+		color #fff
+
+.InputGroup
+	display flex
+	justify-content center
+	align-items center
+	> .InputGroup
+	> .TextInput
+		flex 1
+	> :not(:first-child)
+		margin-left -1px
+	> *
+		border-radius 0
+	> :first-child
+		border-top-left-radius 4px
+		border-bottom-left-radius 4px
+	> :last-child
+		border-top-right-radius 4px
+		border-bottom-right-radius 4px
+
+.Table
+	border-radius 4px
+	background #fff
+	overflow auto
+	table
+		width 100%
+		border-collapse collapse
+	thead
+		position sticky
+		top 0
+		text-align left
+		background #fff
+		box-shadow 0 -1px $gray5 inset
+	tr
+		&.active
+			td
+				background $blue7 !important
+			+ .active
+				td
+					&:first-child
+						border-top-left-radius 0
+					&:last-child
+						border-top-right-radius 0
+				&:has(+ .active)
+					td
+						&:first-child
+							border-radius 0
+						&:last-child
+							border-radius 0
+			&:has(+ .active)
+				td
+					&:first-child
+						border-bottom-left-radius 0
+					&:last-child
+						border-bottom-right-radius 0
+	td, th
+		height 30px
+		padding 4px 8px
+	td
+		&:first-child
+			border-radius 4px 0 0 4px
+		&:last-child
+			border-radius 0 4px 4px 0
+.Table--bordered
+	&:not(.Table--striped)
+		tbody
+			tr:not(:last-child)
+				border-bottom solid 1px $gray5
+		td, th
+			&:not(:last-child)
+				border-right solid 1px $gray5
+.Table--striped
+	tbody
+		tr:nth-child(odd) td
+			background $gray8
+.Table--interactive
+	tbody
+		tr:hover td
+			background $gray7

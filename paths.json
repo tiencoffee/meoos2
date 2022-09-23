@@ -1,0 +1,23 @@
+{
+	"/comp/both/*": [
+		"/comp/both/Button.ls",
+		"/comp/both/Checkbox.ls",
+		"/comp/both/Icon.ls",
+		"/comp/both/InputGroup.ls",
+		"/comp/both/PasswordInput.ls",
+		"/comp/both/Radio.ls",
+		"/comp/both/Select.ls",
+		"/comp/both/Table.ls",
+		"/comp/both/TextInput.ls"
+	],
+	"/comp/main/*": [],
+	"/comp/ifrm/*": [],
+	"/C/apps/*": [
+		"/C/apps/Demo",
+		"/C/apps/FileManager"
+	],
+	"/C/!(apps)/**/*.*": [
+		"/C/imgs/bg/0.jpg",
+		"/C/imgs/bg/1.jpg"
+	]
+}

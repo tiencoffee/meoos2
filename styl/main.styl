@@ -1,0 +1,67 @@
+.App
+	height 100%
+	display flex
+	flex-direction column
+.App__desktop
+	position relative
+	flex 1
+.App__taskbar
+	border-top solid 1px $gray5
+	display flex
+	align-items stretch
+	background #fff
+	z-index 1
+.App__taskbarTasks
+	padding 4px
+	display flex
+	gap 4px
+.App__taskbarTask
+	flex 1 0 200px
+.Task
+	position absolute
+	border-radius 8px
+	display flex
+	flex-direction column
+	background #fff
+	box-shadow 0 0 0 1px $gray5,$shadow
+	transition border-radius .3s $easeOutCubic
+	visibility hidden
+	&[data-restored]
+		animation Task--restored .3s $easeOutCubic
+.Task--loaded
+	visibility visible
+.Task--maximized
+	border-radius 0
+	> .Task__body
+		margin 0
+		border-radius 0
+@keyframes Task--restored
+	from
+		left 0
+		top 0
+		width 100%
+		height 100%
+.Task__header
+	padding 4px
+	display flex
+	align-items center
+.Task__title
+	height 100%
+	padding 0 8px
+	display flex
+	align-items center
+	flex 1
+.Task__body
+	position relative
+	margin 0 4px 4px
+	border-radius 4px
+	flex 1
+	overflow hidden
+	transition-property margin,border-radius
+	transition-duration .3s
+	transition-timing-function $easeOutCubic
+.Task__iframe
+	position absolute
+	width 100%
+	height 100%
+	border 0
