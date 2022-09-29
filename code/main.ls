@@ -2,19 +2,44 @@ class Main extends Both
 	->
 		super!
 		@select = void
+		@submenus = {}
+
+	$setDesktopBgPath: (path) !->
+		await os.sendTask os.desktopTid, \setDesktopBgPath [path]
 
 	castPath: (entry) ->
 		entry.path or entry
 
+	getIconEntry: (entry) ->
+		if entry.isDir
+			\folder|f59e0b
+		else
+			switch entry.ext
+			| <[html htm css js pug styl ls]> => \file-code
+			| <[jpeg jpg webp png jfif gif]> => \file-image
+			| <[mp4 webm]> => \file-video
+			| <[mp3 aac wav]> => \file-audio
+			| <[csv]> => \file-csv
+			| <[pdf]> => \file-pdf
+			| <[zip rar tar 7z]> => \file-zipper
+			| <[txt json yaml yml]> => \file-lines
+			else \file
+
 	$getEntry: (path) ->
 		stat = await fs.stat path
-		name: stat.name
-		path: stat.fullPath
-		isFile: stat.isFile
-		isDir: stat.isDirectory
-		mtime: stat.modificationTime
-		size: stat.size
-		children: path.children
+		entry =
+			name: stat.name
+			path: stat.fullPath
+			isFile: stat.isFile
+			isDir: stat.isDirectory
+			mtime: stat.modificationTime
+			size: stat.size
+		if entry.isDir
+			entry.children? = path.children
+		else
+			entry.ext = @extPath entry.name
+		entry.icon = await @getIconEntry entry
+		entry
 
 	$moveEntry: (oldPath, path, isCreate) ->
 		path = await @castPath path
@@ -50,8 +75,9 @@ class Main extends Both
 
 	$readFile: (path, type = \text) ->
 		path = await @castPath path
+		type = \dataURL if type is \dataUrl
 		type = _.upperFirst type
-		fs.readFile path, type
+		fs.readFile path, type: type
 
 	$writeFile: (path, data) ->
 		path = await @castPath path
@@ -82,9 +108,19 @@ class Main extends Both
 		else
 			throw Error "Không tìm thấy ứng dụng '#filePath'"
 
+	$sendTask: (tid, name, args = []) ->
+		if task = os.tasks.find (.tid is tid)
+			name += ""
+			args = os.castArr args
+			new Promise (resolve, reject) !~>
+				if task.evts
+					task.evts.push [name, args, resolve, reject]
+				else
+					task.postMessageTask name, args, resolve, reject
+
 	$waitTask: (tid) ->
 		if task = os.tasks.find (.tid is tid)
-			await task.promise
+			task.promise
 
 	$closeTask: (tid, val) !->
 		if task = os.tasks.find (.tid is tid)
@@ -123,8 +159,7 @@ class Main extends Both
 								m Icon, item.icon
 								item.text
 			dom =
-				getBoundingClientRect: ~>
-					rect
+				getBoundingClientRect: ~> rect
 			popper = @createPopper dom, el,
 				placement: \bottom-start
 				flips: \top-start
@@ -136,9 +171,8 @@ class Main extends Both
 				popper: popper
 
 	onmousedownGlobalSelect: (event) !->
-		if event instanceof MouseEvent and event.isTrusted
-			unless @select.el.contains event.target
-				@closeSelect!
+		unless @select.el.contains event.target
+			@closeSelect!
 
 	_closeSelect: (val) !->
 		if @select
@@ -148,3 +182,55 @@ class Main extends Both
 			@select.resolve val
 			@select = void
 			document.body.removeEventListener \mousedown @onmousedownGlobalSelect
+
+	_showSubmenu: (menuId, items, rect, rootMenuId, level) ->
+		new Promise (resolve) !~>
+			if rect instanceof Element
+				dom = rect
+				ctnEl = dom
+			else
+				{x, y} = @iframe.getBoundingClientRect!
+				rect :=
+					width: rect.width
+					height: rect.height
+					left: rect.left + x
+					top: rect.top + y
+					right: rect.right + x
+					bottom: rect.bottom + y
+				dom =
+					getBoundingClientRect: ~> rect
+				ctnEl = @dom
+			el = document.createElement \div
+			el.className = "Menu__popper"
+			ctnEl.appendChild el
+			m.mount el,
+				view: ~>
+					m Menu,
+						class: "Menu__submenu"
+						rootMenuId: rootMenuId
+						level: level
+						items: items
+			popper = @createPopper dom, el,
+				placement: \right-start
+				flips: \left-start
+				offset: [-9 -4]
+			unless level
+				onmousedownGlobal = (event) !~>
+					unless el.contains event.target
+						@closeSubmenu menuId
+				document.body.addEventListener \mousedown onmousedownGlobal
+			os.submenus[menuId] =
+				resolve: resolve
+				el: el
+				popper: popper
+				onmousedownGlobal: onmousedownGlobal
+
+	_closeSubmenu: (menuId, itemId) !->
+		if submenu = os.submenus[menuId]
+			m.mount submenu.el
+			submenu.el.remove!
+			submenu.popper.destroy!
+			if submenu.onmousedownGlobal
+				document.body.removeEventListener \mousedown submenu.onmousedownGlobal
+			submenu.resolve itemId
+			delete os.submenus[menuId]

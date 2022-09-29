@@ -27,8 +27,9 @@ class Both
 						offset: opts.offset
 				* name: \preventOverflow
 					options:
+						altAxis: opts.altAxis ? yes
 						padding: opts.padding
-						terser: opts.terser or opts.terser is 0
+						terser: opts.terser isnt no
 						terserOffset: opts.terser
 				* name: \flip
 					options:
@@ -107,6 +108,10 @@ class Both
 					libsEl.textContent += "#text\n"
 				else
 					window.eval text
+
+	$fixBlurryScroll: (event) !->
+		event.redraw = no
+		event.target.scrollTop = Math.round event.target.scrollTop
 
 os = void
 dayjs.locale \vi

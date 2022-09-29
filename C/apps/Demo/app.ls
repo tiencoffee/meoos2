@@ -53,9 +53,78 @@ App = m.comp do
 			* name: "Spectrier"
 				no: \897
 				types: "Ghost"
+		@itemsMenu =
+			* text: "Mở"
+				icon: \arrow-up-right-from-square
+				color: \blue
+			* text: "Mở bằng"
+				items:
+					* text: "Edge"
+						icon: \fab:edge
+					* text: "Chrome"
+						icon: \fab:chrome
+					,,
+					* text: "Ứng dụng khác"
+			,,
+			* text: "Xóa"
+				icon: \trash
+				color: \red
+				label: "Delete"
+			* text: "Chỉnh sửa"
+				icon: \pen-to-square
+				label: "F2"
+				disabled: yes
+			* text: "Thông qua quá trình tiến hóa, các sinh vật nhận được và truyền lại các đặc tính từ thế hệ này sang thế hệ khác, trải qua 1 thời gian dài để biến đổi, thích ứng với điều kiện sống hiện tại để có thể sinh tồn"
+				icon: \paragraph
+				label: "Ctrl+A"
+			,,
+			* text: "Mua sắm"
+				icon: \bag-shopping
+				items:
+					* text: "Thêm phương thức thanh toán"
+						items:
+							* text: "Thẻ ngân hàng"
+								icon: \fad:credit-card
+								color: \pink
+								onclick: !~>
+									console.log 123
+					* text: "Chọn mặt hàng"
+						items:
+							* text: "Đồ ăn"
+								items:
+									* text: "Cơm"
+										icon: \bowl-rice
+									* text: "Trứng"
+										icon: \egg
+									* text: "Burger"
+										icon: \burger
+									* text: "Khoai tây chiên"
+										icon: \french-fries
+									* text: "Bánh cá"
+										icon: \fish-cooked
+									* text: "Đùi lợn"
+										icon: \meat
+									* text: "Thịt bò Kobe"
+										icon: \steak
+									* text: "Lá ngón"
+										icon: \leaf
+							* text: "Đồ uống"
+								items:
+									* text: "Trà ô long"
+										icon: \mug-tea
+									* text: "Cà phê sữa đá"
+										icon: \mug-hot
+									* text: "Rượu vang"
+										icon: \wine-glass
+					* text: "Thêm vào giỏ hàng"
+						icon: \cart-plus
+			,,
+			* text: "Thông tin"
+				label: "Shift+Alt+I"
 
 	view: ->
-		m \.p-2,
+		m \.p-2.h-100.scroll-y,
+			onscroll: os.fixBlurryScroll
 			m \style,
 				"body > div > * {margin: 4px}"
 			m Button,
@@ -88,6 +157,8 @@ App = m.comp do
 				small: yes
 				color: \red
 				icon: \close
+			m Menu,
+				items: @itemsMenu
 			m Table,
 				bordered: yes
 				striped: yes

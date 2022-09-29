@@ -7,10 +7,13 @@ class App extends Main
 		@desktopHeight = innerHeight - @taskbarHeight
 		@desktopX = 0
 		@desktopY = 0
+		@desktopBgPath = \/C/imgs/bg/0.jpg
+		@desktopTid = void
 		@apps = []
 		@tasks = []
 
-	oncreate: !->
+	oncreate: (vnode) !->
+		@dom = vnode.dom
 		await fs.init bytes: 536870912
 		for path in Paths"/C/!(apps)/**/*.*"
 			buf = await m.fetch path, \arrayBuffer
@@ -20,7 +23,15 @@ class App extends Main
 		addEventListener \message @onmessage
 		@loaded = yes
 		m.redraw!
-		@runTask \/C/apps/FileManager/app.yml
+		@desktopTid = @runTask \/C/apps/FileManager/app.yml,
+			maximized: yes
+			noHeader: yes
+			skipTaskbar: yes
+			args:
+				isDesktop: yes
+			evts:
+				[\setDesktopBgPath [@desktopBgPath]]
+		@runTask \/C/apps/Demo/app.yml
 
 	installApp: (kind, srcPath, path) ->
 		switch kind
@@ -39,8 +50,14 @@ class App extends Main
 				icon: pack.icon ? \fad:window
 				type: pack.type or \user
 				title: pack.title
+				width: pack.width
+				height: pack.height
+				x: pack.x
+				y: pack.y
 				maximized: pack.maximized
 				minimized: pack.minimized
+				noHeader: pack.noHeader
+				skipTaskbar: pack.skipTaskbar
 			@apps.push app
 		m.redraw!
 
@@ -71,6 +88,11 @@ class App extends Main
 						result: result
 						isErr: isErr
 						\*
+				| \mfm
+					{mid, result, isErr} = event.data
+					if resolver = task.resolvers[mid]
+						resolver[isErr and 1 or 0]? result
+						delete task.resolvers[mid]
 
 	view: ->
 		m \.App,
@@ -83,17 +105,24 @@ class App extends Main
 					height: @taskbarHeight
 				m \.App__taskbarTasks,
 					@tasks.map (task) ~>
-						m Button,
-							class: "App__taskbarTask App__taskbarTask--#{task.pid}"
-							icon: task.icon
-							onclick: @onclickTaskbarTask.bind void task
-							task.title
+						if task.skipTaskbar
+							m.fragment do
+								key: task.pid
+						else
+							m Button,
+								key: task.pid
+								class: "App__taskbarTask App__taskbarTask--#{task.pid}"
+								icon: task.icon
+								onclick: @onclickTaskbarTask.bind void task
+								task.title
 
 for k, val of App::
 	if k.0 in [\$ \_]
 		k2 = k.substring 1
 		App::[k2] = val
 
+isM = yes
+isF = no
 os = new App
 
 m.mount document.body, os

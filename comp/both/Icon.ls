@@ -3,7 +3,9 @@ Icon = m.comp do
 		val = (@children.0 or "") + ""
 		unless val.includes \:
 			val = "fas:#val"
-		[@kind, @name] = val.split \:
+		[@kind, @name, @color] = val.split /[:|]/
+		if @color?0 isnt \#
+			@color = "##@color"
 
 	view: ->
 		match @kind
@@ -12,3 +14,7 @@ Icon = m.comp do
 				class: m.class do
 					"#@kind fa-#@name"
 					@attrs.class
+				style: m.style do
+					fontSize: @attrs.size
+					color: @color
+					@attrs.style

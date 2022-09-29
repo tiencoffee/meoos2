@@ -3,6 +3,7 @@ Select = m.comp do
 		@controled = \value of @attrs
 		@item = {}
 		@isOpen = no
+		@parseItems!
 
 	oncreate: !->
 		if @controled
@@ -14,14 +15,11 @@ Select = m.comp do
 		m.redraw!
 
 	onbeforeupdate: (old) !->
-		@items = @parseItems @attrs.items
-		@valueItems = @items.filter (item) ~>
-			\value of item
 		if @controled and old and @attrs.value isnt old.attrs.value
 			@setItemDomValue @attrs.value
 
-	parseItems: (items) ->
-		os.castArr items .map (item) ~>
+	parseItems: !->
+		@items = os.castArr @attrs.items .map (item) ~>
 			if item?
 				unless typeof item is \object
 					item = value: item
@@ -34,6 +32,8 @@ Select = m.comp do
 					value: (item.value ? "") + ""
 			else
 				divider: yes
+		@valueItems = @items.filter (item) ~>
+			\value of item
 
 	setItemDomValue: (val) !->
 		@input.dom.value = val
@@ -54,27 +54,17 @@ Select = m.comp do
 	showPopper: !->
 		unless @isOpen
 			@isOpen = yes
-			document.body.addEventListener \mousedown @onmousedownGlobal
+			@parseItems!
 			rect = @dom.getBoundingClientRect!
 			val = await os.showSelect @items, @item.value, rect
 			if val?
 				@setItemValue val
-			@onclosePopper!
+			@isOpen = no
 
 	closePopper: !->
 		if @isOpen
-			@onclosePopper!
-			os.closeSelect!
-
-	onclosePopper: !->
-		if @isOpen
 			@isOpen = no
-			document.body.removeEventListener \mousedown @onmousedownGlobal
-
-	onmousedownGlobal: (event) !->
-		if event.isTrusted
-			unless @dom.contains event.target
-				@closePopper!
+			os.closeSelect!
 
 	onremove: !->
 		@closePopper!

@@ -17,6 +17,13 @@ class Task extends Main
 		@y = app.y ? env.y ? Math.floor (os.desktopHeight - @height) / 2
 		@maximized = Boolean app.maximized ? env.maximized
 		@minimized = Boolean app.minimized ? env.minimized
+		@noHeader = app.noHeader ? env.noHeader ? no
+		@skipTaskbar = app.skipTaskbar ? env.skipTaskbar ? no
+		@args = env.args or {}
+		@evts = env.evts or []
+		if typeof @evts.0 is \string
+			@evts = [@evts]
+		@resolvers = {}
 		@moving = no
 		@loaded = no
 
@@ -141,9 +148,20 @@ class Task extends Main
 				duration: duration
 				easing: \easeOutCubic
 
+	postMessageTask: (name, args, resolve, reject) !->
+		mid = crypto.randomUUID!
+		@resolvers[mid] = [resolve, reject]
+		@iframe.contentWindow.postMessage do
+			type: \mfm
+			mid: mid
+			name: name
+			args: args
+			\*
+
 	_initTask: ->
-		methods: Task.methods
-		publMethods: Task.publMethods
+		methods: @@methods
+		publMethods: @@publMethods
+		args: delete @args
 
 	_mousedownGlobalTask: (x, y, button) !->
 		rect = @iframe.getBoundingClientRect!
@@ -153,12 +171,19 @@ class Task extends Main
 			button: button
 		document.body.dispatchEvent evt
 
+	_startListenTask: !->
+		if @evts
+			for evt in @evts
+				@postMessageTask.apply void evt
+			delete @evts
+
 	onpointerdownTitle: (event) !->
 		event.target.setPointerCapture event.pointerId
-		@moving = yes
+		@moving = 0
 
 	onpointermoveTitle: (event) !->
 		event.redraw = no
+		@moving = yes if @moving is 0
 		if @moving
 			if @maximized
 				@x = event.x - @width / 2
@@ -170,9 +195,10 @@ class Task extends Main
 			@updateXYDom!
 
 	onlostpointercaptureTitle: (event) !->
+		if @moving
+			@clampXY!
+			@updateXYDom!
 		@moving = no
-		@clampXY!
-		@updateXYDom!
 
 	onclickMinimize: (event) !->
 		@minimize!
@@ -199,32 +225,33 @@ class Task extends Main
 				"Task--loaded": @loaded
 				"Task--maximized": @maximized
 				"Task--minimized": @minimized
-			m \.Task__header,
-				m Button,
-					basic: yes
-					small: yes
-					icon: @icon
-				m \.Task__title,
-					onpointerdown: @onpointerdownTitle
-					onpointermove: @onpointermoveTitle
-					onlostpointercapture: @onlostpointercaptureTitle
-					@title
-				m Button,
-					basic: yes
-					small: yes
-					icon: \minus
-					onclick: @onclickMinimize
-				m Button,
-					basic: yes
-					small: yes
-					icon: \plus
-					onclick: @onclickMaximize
-				m Button,
-					basic: yes
-					small: yes
-					color: \red
-					icon: \times
-					onclick: @onclickClose
+			unless @noHeader
+				m \.Task__header,
+					m Button,
+						basic: yes
+						small: yes
+						icon: @icon
+					m \.Task__title,
+						onpointerdown: @onpointerdownTitle
+						onpointermove: @onpointermoveTitle
+						onlostpointercapture: @onlostpointercaptureTitle
+						@title
+					m Button,
+						basic: yes
+						small: yes
+						icon: \minus
+						onclick: @onclickMinimize
+					m Button,
+						basic: yes
+						small: yes
+						icon: \plus
+						onclick: @onclickMaximize
+					m Button,
+						basic: yes
+						small: yes
+						color: \red
+						icon: \times
+						onclick: @onclickClose
 			m \.Task__body,
 				m \iframe.Task__iframe
 

@@ -23,12 +23,25 @@ $mono = unquote("'SF Pro Mono','Input Mono Narrow',monospace")
 $easeInCubic = cubic-bezier(.32,0,.67,0)
 $easeOutCubic = cubic-bezier(.33,1,.68,1)
 
-$shadowSm = 0 4px 6px -1px #0000001a,0 2px 4px -2px #0000001a
+$shadow1 = 0 4px 6px -1px #0000001a,0 2px 4px -2px #0000001a
 $shadow = 0 20px 25px -5px #0000001a,0 8px 10px -6px #0000001a
 
+box-orient()
+	-webkit-box-orient arguments
+	box-orient arguments
+line-clamp()
+	-webkit-line-clamp arguments
+	line-clamp arguments
 text-security()
 	-webkit-text-security arguments
 	text-security arguments
+text-truncate()
+	text-overflow arguments
+	white-space nowrap
+	overflow hidden
+user-drag()
+	-webkit-user-drag arguments
+	user-drag arguments
 
 *, :before, :after
 	box-sizing border-box
@@ -79,11 +92,14 @@ body
 			height w
 			min-height 0
 
-	.start, .column.top
+	.start:not(.column)
+	.top.column
 		justify-content flex-start
-	.center, .column.middle
+	.center:not(.column)
+	.middle.column
 		justify-content center
-	.end, .column.bottom
+	.end:not(.column)
+	.bottom.column
 		justify-content flex-end
 	.between
 		justify-content space-between
@@ -91,11 +107,14 @@ body
 		justify-content space-around
 	.evenly
 		justify-content space-evenly
-	.top, .column.start
+	.top:not(.column)
+	.start.column
 		align-items flex-start
-	.middle, .column.center
+	.middle:not(.column)
+	.center.column
 		align-items center
-	.bottom, .column.end
+	.bottom:not(.column)
+	.end.column
 		align-items flex-end
 	.stretch
 		align-items stretch
@@ -135,6 +154,15 @@ body
 	for v in block inline-block inline flex inline-flex grid inline-grid table inline-table
 		.{v}
 			display v
+
+	.rounded-0
+		border-radius 0
+	.rounded
+		border-radius 4px
+	.rounded-2
+		border-radius 8px
+	.rounded-full
+		border-radius 9999px
 
 	for v in left right
 		.float-{v}
@@ -178,6 +206,9 @@ body
 		.text-{v}
 			white-space v
 
+	.text-truncate
+		text-truncate ellipsis
+
 	.scroll
 		overflow auto
 	.scroll-x
@@ -192,8 +223,8 @@ body
 	.ratio
 		aspect-ratio 1
 
-	.shadow-sm
-		box-shadow $shadowSm
+	.shadow-1
+		box-shadow $shadow1
 	.shadow
 		box-shadow $shadow
 
@@ -206,12 +237,12 @@ body
 	pointer-events none
 
 .Icon
-	width 18px
-	height 16px
-	font-size 16px
+	width max(18px, 1em)
+	height 1em
 	display inline-flex
 	justify-content center
 	align-items center
+	font-size 16px
 
 .Button
 	height 30px
@@ -224,7 +255,8 @@ body
 	gap 8px
 	font inherit
 	background $gray7
-	&:hover, &.active
+	&:hover
+	&.active
 		border-color $gray4
 		background $gray6
 		z-index 1
@@ -235,7 +267,8 @@ for c, vals in $intents
 		border-color vals[2]
 		background vals[4]
 		color #fff
-		&:hover, &.active
+		&:hover
+		&.active
 			border-color vals[1]
 			background vals[3]
 			&.Button--basic
@@ -304,7 +337,8 @@ for v in left center right
 	margin 0
 	border solid 1px $gray5
 	background #fff
-	&:hover, &.active
+	&:hover
+	&.active
 		border-color $gray4
 		background $gray6
 		&:checked
@@ -336,9 +370,8 @@ for v in left center right
 .Select__input
 	display none
 .Select__popper
-	width 100%
 	padding 8px 0
-	border solid 1px $gray5
+	border solid 1px $gray4
 	border-radius 4px
 	background #fff
 	box-shadow $shadow
@@ -363,6 +396,38 @@ for v in left center right
 	&.active
 		background $blue4
 		color #fff
+
+.Menu
+	padding 8px 0
+	border solid 1px $gray5
+	border-radius 4px
+.Menu__divider
+	margin 8px 0
+	border-top solid 1px $gray5
+.Menu__item
+	min-height 30px
+	padding 2px 16px
+	display flex
+	align-items center
+	gap 8px
+	&:hover
+	&.active
+		background $gray6
+.Menu__itemText
+	flex 1
+for c, vals in $intents
+	.Menu__item--{c}
+		color vals[4]
+		&:hover
+		&.active
+			background vals[4]
+			color #fff
+.Menu__popper
+	width max-content
+.Menu__submenu
+	border-color $gray4
+	background #fff
+	box-shadow $shadow
 
 .InputGroup
 	display flex
