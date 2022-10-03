@@ -4,15 +4,18 @@
 		"/comp/both/Checkbox.ls",
 		"/comp/both/Icon.ls",
 		"/comp/both/InputGroup.ls",
-		"/comp/both/Menu.ls",
 		"/comp/both/PasswordInput.ls",
 		"/comp/both/Radio.ls",
 		"/comp/both/Select.ls",
 		"/comp/both/Table.ls",
 		"/comp/both/TextInput.ls"
 	],
-	"/comp/main/*": [],
-	"/comp/ifrm/*": [],
+	"/comp/main/*": [
+		"/comp/main/Menu.ls"
+	],
+	"/comp/ifrm/*": [
+		"/comp/ifrm/Menu.ls"
+	],
 	"/C/apps/*": [
 		"/C/apps/Demo",
 		"/C/apps/FileManager"

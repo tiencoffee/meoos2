@@ -375,7 +375,7 @@ for v in left center right
 	border-radius 4px
 	background #fff
 	box-shadow $shadow
-	z-index 1000
+	z-index 1050
 .Select__header
 	height 30px
 	padding 0 8px
@@ -401,6 +401,8 @@ for v in left center right
 	padding 8px 0
 	border solid 1px $gray5
 	border-radius 4px
+.Menu--basic
+	border 0
 .Menu__divider
 	margin 8px 0
 	border-top solid 1px $gray5
@@ -413,8 +415,6 @@ for v in left center right
 	&:hover
 	&.active
 		background $gray6
-.Menu__itemText
-	flex 1
 for c, vals in $intents
 	.Menu__item--{c}
 		color vals[4]
@@ -422,12 +422,16 @@ for c, vals in $intents
 		&.active
 			background vals[4]
 			color #fff
+.Menu__itemIcon
+	display flex
+.Menu__itemText
+	flex 1
 .Menu__popper
 	width max-content
+	z-index 1050
 .Menu__submenu
-	border-color $gray4
 	background #fff
-	box-shadow $shadow
+	box-shadow 0 0 0 1px rgba($gray3, .5),$shadow
 
 .InputGroup
 	display flex

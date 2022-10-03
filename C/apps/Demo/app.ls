@@ -70,10 +70,14 @@ App = m.comp do
 				icon: \trash
 				color: \red
 				label: "Delete"
+				onclick: !~>
+					console.log "da xoa"
 			* text: "Chỉnh sửa"
 				icon: \pen-to-square
 				label: "F2"
 				disabled: yes
+				onclick: !~>
+					console.log "chinh sua"
 			* text: "Thông qua quá trình tiến hóa, các sinh vật nhận được và truyền lại các đặc tính từ thế hệ này sang thế hệ khác, trải qua 1 thời gian dài để biến đổi, thích ứng với điều kiện sống hiện tại để có thể sinh tồn"
 				icon: \paragraph
 				label: "Ctrl+A"
@@ -87,27 +91,30 @@ App = m.comp do
 								icon: \fad:credit-card
 								color: \pink
 								onclick: !~>
-									console.log 123
+									console.log "ngan hang"
 					* text: "Chọn mặt hàng"
 						items:
 							* text: "Đồ ăn"
 								items:
 									* text: "Cơm"
 										icon: \bowl-rice
-									* text: "Trứng"
-										icon: \egg
 									* text: "Burger"
 										icon: \burger
 									* text: "Khoai tây chiên"
 										icon: \french-fries
 									* text: "Bánh cá"
 										icon: \fish-cooked
+									,,
+									* text: "Trứng"
+										icon: \egg
 									* text: "Đùi lợn"
 										icon: \meat
 									* text: "Thịt bò Kobe"
 										icon: \steak
+									,,
 									* text: "Lá ngón"
 										icon: \leaf
+										color: \red
 							* text: "Đồ uống"
 								items:
 									* text: "Trà ô long"
@@ -118,6 +125,8 @@ App = m.comp do
 										icon: \wine-glass
 					* text: "Thêm vào giỏ hàng"
 						icon: \cart-plus
+						onclick: !~>
+							console.log "them vao gio hang"
 			,,
 			* text: "Thông tin"
 				label: "Shift+Alt+I"
@@ -157,8 +166,10 @@ App = m.comp do
 				small: yes
 				color: \red
 				icon: \close
-			m Menu,
-				items: @itemsMenu
+			m \.row,
+				m \.col-6,
+					m Menu,
+						items: @itemsMenu
 			m Table,
 				bordered: yes
 				striped: yes

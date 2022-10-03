@@ -177,6 +177,12 @@ class Task extends Main
 				@postMessageTask.apply void evt
 			delete @evts
 
+	_showSubmenu: (items, rect) ->
+		os.showSubmenu items, rect, @
+
+	_closeSubmenu: (itemId) !->
+		os.closeSubmenu itemId
+
 	onpointerdownTitle: (event) !->
 		event.target.setPointerCapture event.pointerId
 		@moving = 0
@@ -211,6 +217,8 @@ class Task extends Main
 
 	onbeforeremove: ->
 		@closeSelect!
+		if os.taskSubmenu is @
+			os.closeSubmenu!
 		anime do
 			targets: @dom
 			scale: 0.9

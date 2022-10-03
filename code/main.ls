@@ -2,7 +2,6 @@ class Main extends Both
 	->
 		super!
 		@select = void
-		@submenus = {}
 
 	$setDesktopBgPath: (path) !->
 		await os.sendTask os.desktopTid, \setDesktopBgPath [path]
@@ -182,55 +181,3 @@ class Main extends Both
 			@select.resolve val
 			@select = void
 			document.body.removeEventListener \mousedown @onmousedownGlobalSelect
-
-	_showSubmenu: (menuId, items, rect, rootMenuId, level) ->
-		new Promise (resolve) !~>
-			if rect instanceof Element
-				dom = rect
-				ctnEl = dom
-			else
-				{x, y} = @iframe.getBoundingClientRect!
-				rect :=
-					width: rect.width
-					height: rect.height
-					left: rect.left + x
-					top: rect.top + y
-					right: rect.right + x
-					bottom: rect.bottom + y
-				dom =
-					getBoundingClientRect: ~> rect
-				ctnEl = @dom
-			el = document.createElement \div
-			el.className = "Menu__popper"
-			ctnEl.appendChild el
-			m.mount el,
-				view: ~>
-					m Menu,
-						class: "Menu__submenu"
-						rootMenuId: rootMenuId
-						level: level
-						items: items
-			popper = @createPopper dom, el,
-				placement: \right-start
-				flips: \left-start
-				offset: [-9 -4]
-			unless level
-				onmousedownGlobal = (event) !~>
-					unless el.contains event.target
-						@closeSubmenu menuId
-				document.body.addEventListener \mousedown onmousedownGlobal
-			os.submenus[menuId] =
-				resolve: resolve
-				el: el
-				popper: popper
-				onmousedownGlobal: onmousedownGlobal
-
-	_closeSubmenu: (menuId, itemId) !->
-		if submenu = os.submenus[menuId]
-			m.mount submenu.el
-			submenu.el.remove!
-			submenu.popper.destroy!
-			if submenu.onmousedownGlobal
-				document.body.removeEventListener \mousedown submenu.onmousedownGlobal
-			submenu.resolve itemId
-			delete os.submenus[menuId]

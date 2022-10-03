@@ -1,7 +1,6 @@
 class App extends Main
 	->
 		super!
-		@loaded = no
 		@taskbarHeight = 39
 		@desktopWidth = innerWidth
 		@desktopHeight = innerHeight - @taskbarHeight
@@ -11,6 +10,10 @@ class App extends Main
 		@desktopTid = void
 		@apps = []
 		@tasks = []
+		@popperSubmenu = void
+		@resolveSubmenu = void
+		@taskSubmenu = void
+		@loaded = no
 
 	oncreate: (vnode) !->
 		@dom = vnode.dom
@@ -60,6 +63,55 @@ class App extends Main
 				skipTaskbar: pack.skipTaskbar
 			@apps.push app
 		m.redraw!
+
+	showSubmenu: (items, rect, task) ->
+		new Promise (resolve) !~>
+			@closeSubmenu!
+			{x, y} = task.iframe.getBoundingClientRect!
+			rect :=
+				width: rect.width
+				height: rect.height
+				left: rect.left + x
+				top: rect.top + y
+				right: rect.right + x
+				bottom: rect.bottom + y
+			refEl = getBoundingClientRect: ~> rect
+			el = document.createElement \div
+			el.className = "Menu__popper"
+			m.mount el,
+				view: ~>
+					m Menu,
+						class: "Menu__submenu"
+						basic: yes
+						isTop: no
+						items: items
+						onitemidclick: @onitemidclickSubmenu
+			task.dom.appendChild el
+			@popperSubmenu = @createPopper refEl, el,
+				placement: \right-start
+				flips: \left-start
+				offset: [-8 -4]
+				altAxis: no
+			@taskSubmenu = task
+			document.body.addEventListener \mousedown @onmousedownGlobalSubmenu
+			@resolveSubmenu = resolve
+
+	onitemidclickSubmenu: (itemId) !->
+		@closeSubmenu itemId
+
+	onmousedownGlobalSubmenu: (event) !->
+		unless @popperSubmenu.state.elements.popper.contains event.target
+			@closeSubmenu!
+
+	closeSubmenu: (itemId) !->
+		if @popperSubmenu
+			@popperSubmenu.state.elements.popper.remove!
+			@popperSubmenu.destroy!
+			@popperSubmenu = void
+			@taskSubmenu = void
+			document.body.removeEventListener \mousedown @onmousedownGlobalSubmenu
+			@resolveSubmenu itemId
+			@resolveSubmenu = void
 
 	onclickTaskbarTask: (task, event) !->
 		task.minimize!
